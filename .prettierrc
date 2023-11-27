@@ -1,0 +1,5 @@
+{
+  "plugins": ["prettier"],
+  "singleQuote": true,
+  "trailingComma": "all"
+}
