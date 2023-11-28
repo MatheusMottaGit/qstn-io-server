@@ -6,7 +6,7 @@ import { User } from 'src/user/dtos/user-attributes';
 import { UsersRepository } from 'src/user/repositories/users-repository';
 import { z } from 'zod';
 
-@Controller()
+@Controller('auth')
 export class UserController {
   constructor(
     private usersRepository: UsersRepository,
@@ -14,13 +14,13 @@ export class UserController {
   ) {}
 
   @Post('register')
-  async authenticateUser(@Body() body: CreateUsersBodyRequest) {
+  async authenticateUser(@Body() createUserDto: CreateUsersBodyRequest) {
     const bodySchema = z.object({
       access_token: z.string(),
       role: z.enum(['student', 'teacher']),
     });
 
-    const { access_token, role } = bodySchema.parse(body);
+    const { access_token, role } = bodySchema.parse(createUserDto);
 
     const accessTokenResponse = await axios(
       'https://www.googleapis.com/oauth2/v2/userinfo',
