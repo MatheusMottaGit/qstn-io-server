@@ -11,11 +11,11 @@ datasource db {
 }
 
 model Question {
-  id         Int    @id
-  category   String
+  amount     Int     @id //like an id
+  category   Int
   type       String
   difficulty String
-  statement  String
+  statement  String?
 
   quiz   Quiz?   @relation(fields: [quizId], references: [id])
   quizId String?
