@@ -10,5 +10,4 @@ export class Question {
   category?: number;
   type?: string;
   difficulty?: string;
-  statement?: string;
 }
