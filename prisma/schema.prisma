@@ -26,6 +26,7 @@ model Quiz {
   name        String
   description String
   questions   Question[]
+  created_at  DateTime   @default(now())
 
   teacher   Teacher? @relation(fields: [teacherId], references: [id])
   teacherId String?
