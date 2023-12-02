@@ -5,13 +5,12 @@ import {
   NotFoundException,
   Get,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { QuizRepository } from '../repositories/quiz-repository';
 import { CreateQuizRequestBody } from '../dtos/create-quiz-request-body';
-import axios from 'axios';
 import { z } from 'zod';
-import { FindQuizRequestParams } from '../dtos/find-quiz-request-params';
-import { addQuestionToQuizRequestBody } from '../dtos/add-to-quiz-request-body';
+import { AddQuestionToQuizBody } from '../dtos/add-question-dto';
 
 @Controller('quiz')
 export class QuizController {
@@ -31,28 +30,37 @@ export class QuizController {
     return { quiz };
   }
 
+  @Get('all')
+  async listQuizzes() {
+    return this.quizRepository.list();
+  }
+
   @Get(':id')
-  async getQuiz(@Param() findQuizDto: FindQuizRequestParams) {
-    const paramsSchema = z.object({
-      id: z.string().uuid(),
-    });
-
-    const { id } = paramsSchema.parse(findQuizDto);
-
+  async getQuiz(@Param('id') id: string) {
     const quiz = await this.quizRepository.find(id);
+
+    if (!quiz) {
+      throw new NotFoundException('resource not found.');
+    }
 
     return { quiz };
   }
 
-  @Post('add/:amount')
-  async addQuestionToQuiz(@Param() addToQuizDto: addQuestionToQuizRequestBody) {
-    const paramsSchema = z.object({
-      amount: z.number(),
-      category: z.number(),
-      type: z.string(),
-      difficulty: z.string(),
-    });
+  @Post(':id/add')
+  async addQuestionToQuiz(
+    @Param('id') id: string,
+    @Body() addQuestionBody: AddQuestionToQuizBody,
+  ) {
+    const { question } = addQuestionBody;
 
-    const question = paramsSchema.parse(addToQuizDto);
+    const quiz = await this.quizRepository.find(id);
+
+    if (!quiz) {
+      throw new NotFoundException('quiz not found.');
+    }
+
+    const createdQuestion = await this.quizRepository.addQuestion(id, question);
+
+    return createdQuestion;
   }
 }
