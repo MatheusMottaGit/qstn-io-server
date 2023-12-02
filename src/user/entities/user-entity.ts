@@ -6,7 +6,7 @@ import { User } from 'src/user/dtos/user-attributes';
 import { UsersRepository } from 'src/user/repositories/users-repository';
 import { z } from 'zod';
 
-@Controller('auth')
+@Controller()
 export class UserController {
   constructor(
     private usersRepository: UsersRepository,
@@ -42,9 +42,11 @@ export class UserController {
 
     let user: User | null;
 
-    await this.usersRepository.find(role, userInfo);
+    user = await this.usersRepository.find(role, userInfo);
 
-    await this.usersRepository.create(userInfo, role);
+    if (!user) {
+      user = await this.usersRepository.create(userInfo, role);
+    }
 
     const token = this.jwt.sign(
       {

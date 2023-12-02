@@ -7,9 +7,9 @@ import { Injectable } from '@nestjs/common';
 export class PrismaUsersRepository implements UsersRepository {
   constructor(private prisma: PrismaService) {}
 
-  async create(userInfo: User, role: string): Promise<void> {
+  async create(userInfo: User, role: string): Promise<User> {
     if (role === 'student') {
-      await this.prisma.student.create({
+      return await this.prisma.student.create({
         data: {
           googleId: userInfo.id,
           name: userInfo.name,
@@ -21,7 +21,7 @@ export class PrismaUsersRepository implements UsersRepository {
     }
 
     if (role === 'teacher') {
-      await this.prisma.teacher.create({
+      return await this.prisma.teacher.create({
         data: {
           googleId: userInfo.id,
           name: userInfo.name,
@@ -32,9 +32,9 @@ export class PrismaUsersRepository implements UsersRepository {
       });
     }
   }
-  async find(role: string, userInfo: User): Promise<void> {
+  async find(role: string, userInfo: User): Promise<User> {
     if (role === 'student') {
-      await this.prisma.student.findUnique({
+      return await this.prisma.student.findUnique({
         where: {
           googleId: userInfo.id,
         },
@@ -42,7 +42,7 @@ export class PrismaUsersRepository implements UsersRepository {
     }
 
     if (role === 'teacher') {
-      await this.prisma.teacher.findUnique({
+      return await this.prisma.teacher.findUnique({
         where: {
           googleId: userInfo.id,
         },
