@@ -6,8 +6,11 @@ export class Quiz {
 }
 
 export class Question {
-  amount?: number;
-  category?: number;
+  id?: string;
+  category?: string;
   type?: string;
   difficulty?: string;
+  statement?: string;
+  correct_answer?: string;
+  incorrect_answers?: string[];
 }
