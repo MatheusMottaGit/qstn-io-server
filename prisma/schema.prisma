@@ -11,14 +11,24 @@ datasource db {
 }
 
 model Question {
-  amount     Int     @id //like an id
-  category   Int
-  type       String
-  difficulty String
-  statement  String?
+  id                String            @id @default(uuid())
+  category          String
+  type              String
+  difficulty        String
+  statement         String
+  correct_answer    String
+  incorrect_answers IncorrectAnswer[]
 
   quiz   Quiz?   @relation(fields: [quizId], references: [id])
   quizId String?
+}
+
+model IncorrectAnswer {
+  id     String @id @default(uuid())
+  option String
+
+  question   Question? @relation(fields: [questionId], references: [id])
+  questionId String?
 }
 
 model Quiz {
