@@ -10,7 +10,7 @@ export class PrismaQuizRepository implements QuizRepository {
   async addQuestion(id: string, question: Question): Promise<Question> {
     const existingQuestion = await this.prisma.question.findUnique({
       where: {
-        amount: question.amount,
+        id: question.id,
       },
     });
 
@@ -20,10 +20,16 @@ export class PrismaQuizRepository implements QuizRepository {
 
     return await this.prisma.question.create({
       data: {
-        amount: question.amount,
+        statement: question.statement,
         category: question.category,
         difficulty: question.difficulty,
         type: question.type,
+        correct_answer: question.correct_answer,
+        incorrect_answers: {
+          create: question.incorrect_answers.map((answer) => ({
+            option: answer,
+          })),
+        },
         quiz: {
           connect: {
             id: id,
