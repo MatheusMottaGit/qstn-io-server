@@ -10,36 +10,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Question {
-  id                String            @id @default(uuid())
-  category          String
-  type              String
-  difficulty        String
-  statement         String
-  correct_answer    String
-  incorrect_answers IncorrectAnswer[]
+model Trivia {
+  id               String            @id @default(uuid())
+  category         String
+  type             String
+  difficulty       String
+  question         Question          @relation(fields: [questionId], references: [id])
+  correctAnswer    String
+  incorrectAnswers IncorrectAnswer[]
 
-  quiz   Quiz?   @relation(fields: [quizId], references: [id])
-  quizId String?
+  quiz       Quiz?   @relation(fields: [quizId], references: [id])
+  quizId     String?
+  questionId String
+}
+
+model Question {
+  id   String @id @default(uuid())
+  text String
+
+  triviaId String?
+  trivia   Trivia[]
 }
 
 model IncorrectAnswer {
-  id     String @id @default(uuid())
+  id     String  @id @default(uuid())
   option String
+  trivia Trivia? @relation(fields: [triviaId], references: [id])
 
-  question   Question? @relation(fields: [questionId], references: [id])
-  questionId String?
+  triviaId String?
 }
 
 model Quiz {
-  id          String     @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
   description String
-  questions   Question[]
-  created_at  DateTime   @default(now())
-
-  teacher   Teacher? @relation(fields: [teacherId], references: [id])
-  teacherId String?
+  created_at  DateTime @default(now())
+  trivias     Trivia[]
+  teacher     Teacher? @relation(fields: [teacherId], references: [id])
+  teacherId   String?
 }
 
 model Teacher {
