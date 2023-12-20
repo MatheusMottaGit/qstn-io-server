@@ -10,7 +10,13 @@ export class Question {
   category?: string;
   type?: string;
   difficulty?: string;
-  statement?: string;
-  correct_answer?: string;
-  incorrect_answers?: string[];
+  question?: { text: string };
+  correctAnswer?: string;
+  incorrectAnswers?: IncorrectAnswer[];
+}
+
+export class IncorrectAnswer {
+  id?: string;
+  option?: string;
+  questionId?: string;
 }

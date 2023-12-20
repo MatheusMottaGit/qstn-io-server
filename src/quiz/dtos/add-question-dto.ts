@@ -3,5 +3,5 @@ import { Question } from './quiz-attributes';
 
 export class AddQuestionToQuizBody {
   @IsNotEmpty()
-  question: Question;
+  questions: Question[];
 }
