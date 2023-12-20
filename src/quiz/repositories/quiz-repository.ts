@@ -7,5 +7,7 @@ export abstract class QuizRepository {
 
   abstract list(): Promise<Quiz[]>;
 
-  abstract addQuestion(id: string, question: Question): Promise<Question>;
+  abstract addQuestion(id: string, questions: Question[]): Promise<Question[]>;
+
+  abstract deleteAllQuestions(id: string): Promise<void>;
 }

@@ -7,36 +7,83 @@ import { ConflictException, Injectable } from '@nestjs/common';
 export class PrismaQuizRepository implements QuizRepository {
   constructor(private prisma: PrismaService) {}
 
-  async addQuestion(id: string, question: Question): Promise<Question> {
-    const existingQuestion = await this.prisma.question.findUnique({
+  async deleteAllQuestions(id: string): Promise<void> {
+    await this.prisma.trivia.deleteMany({
       where: {
-        id: question.id,
+        quizId: id,
       },
     });
+  }
 
-    if (existingQuestion) {
-      throw new ConflictException('this question is already in your quiz.');
-    }
-
-    return await this.prisma.question.create({
-      data: {
-        statement: question.statement,
-        category: question.category,
-        difficulty: question.difficulty,
-        type: question.type,
-        correct_answer: question.correct_answer,
-        incorrect_answers: {
-          create: question.incorrect_answers.map((answer) => ({
-            option: answer,
-          })),
+  async addQuestion(id: string, questions: Question[]): Promise<Question[]> {
+    const existingQuestions = await this.prisma.trivia.findMany({
+      where: {
+        question: {
+          text: {
+            in: questions
+              .map((question) => question.question.text)
+              .filter((text) => text !== undefined),
+          },
         },
-        quiz: {
-          connect: {
-            id: id,
+      },
+
+      select: {
+        question: {
+          select: {
+            text: true,
           },
         },
       },
     });
+
+    const existingStatements = new Set(
+      existingQuestions.map((question) => question.question.text),
+    );
+
+    const duplicateStatements = questions
+      .map((question) => question.question.text)
+      .filter((text) => existingStatements.has(text));
+
+    if (duplicateStatements.length > 0) {
+      throw new ConflictException(
+        `questions ${duplicateStatements.join(
+          ', ',
+        )} already exists in your quiz.`,
+      );
+    }
+
+    let createdQuestions: Question[] = [];
+
+    for (const question of questions) {
+      const createdQuestion = await this.prisma.trivia.create({
+        data: {
+          question: {
+            create: {
+              text: question.question.text,
+            },
+          },
+          category: question.category,
+          difficulty: question.difficulty,
+          type: question.type,
+          correctAnswer: question.correctAnswer,
+          incorrectAnswers: {
+            create: question.incorrectAnswers.map((answer) => ({
+              option: String(answer),
+            })),
+          },
+          quiz: {
+            connect: {
+              id: id,
+            },
+          },
+        },
+      });
+
+      createdQuestions.push(createdQuestion);
+    }
+
+    console.log(createdQuestions);
+    return createdQuestions;
   }
 
   async list(): Promise<Quiz[]> {
@@ -46,7 +93,12 @@ export class PrismaQuizRepository implements QuizRepository {
       },
 
       include: {
-        questions: true,
+        trivias: {
+          include: {
+            incorrectAnswers: true,
+            question: true,
+          },
+        },
       },
     });
 
@@ -69,7 +121,11 @@ export class PrismaQuizRepository implements QuizRepository {
       },
 
       include: {
-        questions: true,
+        trivias: {
+          include: {
+            question: true,
+          },
+        },
       },
     });
   }
