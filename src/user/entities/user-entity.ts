@@ -1,10 +1,10 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
-import { CreateUsersBodyRequest } from 'src/user/dtos/create-user-request-body';
 import { User } from 'src/user/dtos/user-attributes';
 import { UsersRepository } from 'src/user/repositories/users-repository';
 import { z } from 'zod';
+import { UserAuthRequest } from '../dtos/user-auth-request';
 
 @Controller()
 export class UserController {
@@ -14,13 +14,8 @@ export class UserController {
   ) {}
 
   @Post('register')
-  async authenticateUser(@Body() createUserDto: CreateUsersBodyRequest) {
-    const bodySchema = z.object({
-      access_token: z.string(),
-      role: z.enum(['student', 'teacher']),
-    });
-
-    const { access_token, role } = bodySchema.parse(createUserDto);
+  async authenticateUser(@Body() userAuth: UserAuthRequest) {
+    const { access_token, role } = userAuth;
 
     const accessTokenResponse = await axios(
       'https://www.googleapis.com/oauth2/v2/userinfo',

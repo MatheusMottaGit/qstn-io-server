@@ -51,7 +51,7 @@ export class QuizController {
     @Param('id') id: string,
     @Body() addQuestionBody: AddQuestionToQuizBody,
   ) {
-    const { question } = addQuestionBody;
+    const { questions } = addQuestionBody;
 
     const quiz = await this.quizRepository.find(id);
 
@@ -59,8 +59,16 @@ export class QuizController {
       throw new NotFoundException('quiz not found.');
     }
 
-    const createdQuestion = await this.quizRepository.addQuestion(id, question);
+    const createdQuestions = await this.quizRepository.addQuestion(
+      id,
+      questions,
+    );
 
-    return createdQuestion;
+    return createdQuestions;
+  }
+
+  @Delete(':id/delete')
+  async deleteAllQuestionsFromQuiz(@Param('id') id: string) {
+    return await this.quizRepository.deleteAllQuestions(id);
   }
 }
